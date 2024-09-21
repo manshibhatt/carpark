@@ -1,6 +1,4 @@
-
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"; 
 import {
   PaymentElement,
   LinkAuthenticationElement,
@@ -9,9 +7,13 @@ import {
 } from "@stripe/react-stripe-js";
 import PaymentSuccess from "./Success";
 
-const CheckoutForm = () => {
+const CheckoutForm = (props) => { 
   const stripe = useStripe();
-  const elements = useElements();
+  const elements = useElements(); 
+
+  const tokenId = props.tokenId;
+
+
 
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState(null);
@@ -30,7 +32,7 @@ const CheckoutForm = () => {
       return;
     }
 
-    stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
+    stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => { 
       switch (paymentIntent.status) {
         case "succeeded":
           setMessage("Payment succeeded!");
@@ -55,7 +57,24 @@ const CheckoutForm = () => {
       return;
     }
 
+    console.log(tokenId);
+    console.log("hello");
+
     setIsLoading(true);
+
+    const response = await fetch("http://localhost:8001/api/payment/complete", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        token_id:tokenId,
+     
+      }),
+    }); 
+
+    const result = await response.json();
+    console.log("Payment marked as complete:", result); 
 
     const { error } = await stripe.confirmPayment({
       elements,
@@ -63,7 +82,13 @@ const CheckoutForm = () => {
         // Make sure to change this to your payment completion page
         return_url: "http://localhost:5173/PaymentSuccess",
       },
-    });
+    }); 
+
+
+  
+
+
+
 
     if (error.type === "card_error" || error.type === "validation_error") {
       setMessage(error.message);
@@ -79,7 +104,7 @@ const CheckoutForm = () => {
   };
 
   return (
-    <form id="payment-form" onSubmit={handleSubmit}>
+    <form id="payment-form" onSubmit={handleSubmit}> 
       <LinkAuthenticationElement
         id="link-authentication-element"
         onChange={(e) => setEmail(e.target.value)}

@@ -16,7 +16,7 @@ const stripePromise = loadStripe(
 const Pay = () => {
   const [clientSecret, setClientSecret] = useState("");
 
-  const { id } = useParams();
+  const { id } = useParams(); 
 
   useEffect(() => {
     const makeRequest = async () => {
@@ -43,7 +43,7 @@ const Pay = () => {
   return <div className="pay">
     {clientSecret && (
         <Elements options={options} stripe={stripePromise}>
-          <CheckoutForm />
+          <CheckoutForm tokenId={id}/>
         </Elements>
       )}
   </div>;
